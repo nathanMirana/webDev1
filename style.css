@@ -1,0 +1,46 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200vh;
+    background-color: black;
+}
+
+#gameWindow{
+    background-color: inherit;
+    width: 200px;
+    height: 200px;
+    margin: 10px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.car{
+    background-color: red;
+    width: 30px;
+    height: 30px;
+    bottom: 20px;
+    position: fixed;
+    z-index: 1;
+    animation: movement 5s ease-in-out infinite alternate;
+}
+
+.obstacle{
+    background-color: blue;
+    width: 30px;
+    height: 60px;
+    position: absolute;
+    animation: animateEnv 5s linear infinite;
+}
+
+@keyframes animateEnv {
+    from{top: -60px;}
+    to{top: 2000px;}   
+}
+
+@keyframes movement {
+    0%{left: 0px;}
+    50%{left: 50px;}
+    100%{left: 0px;}
+}
