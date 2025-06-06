@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostIts - Kanban Task Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.3) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            max-width: 1200px;
+            padding: 0 40px;
+            gap: 100px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .logo {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 20px 50px;
+            border-radius: 50px;
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            display: inline-block;
+            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.3);
+            transform: perspective(1000px) rotateX(10deg);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: perspective(1000px) rotateX(10deg) scale(1); }
+            50% { transform: perspective(1000px) rotateX(10deg) scale(1.05); }
+        }
+
+        .hero-text h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+
+        .features {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+
+        .features li {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .features li::before {
+            content: '✓';
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .hero-icon {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 30px 60px rgba(34, 197, 94, 0.4);
+            transform: perspective(1000px) rotateY(-15deg) rotateX(10deg);
+            animation: bounce 3s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: perspective(1000px) rotateY(-15deg) rotateX(10deg) translateY(0px); }
+            50% { transform: perspective(1000px) rotateY(-15deg) rotateX(10deg) translateY(-10px); }
+        }
+
+        .hero-icon::before {
+            content: '!';
+            color: white;
+            font-size: 120px;
+            font-weight: bold;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+        }
+
+        .app-section {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .app-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-logo {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .add-task-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .add-task-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .column {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .column-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid;
+            text-align: center;
+        }
+
+        .todo .column-header {
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .in-progress .column-header {
+            color: #f59e0b;
+            border-color: #f59e0b;
+        }
+
+        .done .column-header {
+            color: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .task-list {
+            min-height: 400px;
+            position: relative;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: grab;
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .task-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .task-card:active {
+            cursor: grabbing;
+        }
+
+        .task-card.todo {
+            border-left-color: #ef4444;
+        }
+
+        .task-card.in-progress {
+            border-left-color: #f59e0b;
+        }
+
+        .task-card.done {
+            border-left-color: #22c55e;
+        }
+
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .task-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
+        }
+
+        .edit-btn {
+            color: #3b82f6;
+        }
+
+        .edit-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .delete-btn {
+            color: #ef4444;
+        }
+
+        .delete-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal h3 {
+            margin-bottom: 25px;
+            color: #1f2937;
+            font-size: 1.4rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+        }
+
+        .cancel-btn {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .cancel-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .drag-over {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px dashed #3b82f6;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                flex-direction: column;
+                gap: 50px;
+                text-align: center;
+            }
+
+            .hero-icon {
+                width: 200px;
+                height: 200px;
+            }
+
+            .logo {
+                font-size: 3rem;
+                padding: 15px 35px;
+            }
+
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+
+            .app-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="hero-section" id="heroSection">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="logo">PostIts</div>
+                <h2>A Kanban style program that allows you to create and attach projects for important tasks and events.</h2>
+                <p>"PostIts" helps you track unfinished or upcoming tasks, reminding you when and what you need to do.</p>
+                <ul class="features">
+                    <li>Stay organized</li>
+                    <li>Track progress</li>
+                    <li>Visualize workload</li>
+                    <li>Keep motivation high</li>
+                </ul>
+                <button class="cta-button" onclick="startApp()">Start Organizing Now!</button>
+            </div>
+            <div class="hero-icon"></div>
+        </div>
+    </div>
+
+    
+    <div class="app-section" id="appSection">
+        <div class="app-header">
+            <div class="app-logo">PostIts</div>
+            <button class="add-task-btn" onclick="openTaskModal()">+ Add New Task</button>
+        </div>
+
+        <div class="kanban-board">
+            <div class="column todo">
+                <div class="column-header">To Do</div>
+                <div class="task-list" id="todoList" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="empty-state">No tasks yet. Add your first task!</div>
+                </div>
+            </div>
+
+            <div class="column in-progress">
+                <div class="column-header">In Progress</div>
+                <div class="task-list" id="inProgressList" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="empty-state">Move tasks here when you start working on them</div>
+                </div>
+            </div>
+
+            <div class="column done">
+                <div class="column-header">Done</div>
+                <div class="task-list" id="doneList" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="empty-state">Completed tasks will appear here</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Add New Task</h3>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" placeholder="Describe your task..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskStatus">Status</label>
+                    <select id="taskStatus">
+                        <option value="todo">To Do</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn cancel-btn" onclick="closeTaskModal()">Cancel</button>
+                    <button type="submit" class="modal-btn save-btn">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        
+        let tasks = [];
+        let taskIdCounter = 1;
+        let editingTaskId = null;
+
+        
+        function startApp() {
+            document.getElementById('heroSection').style.display = 'none';
+            document.getElementById('appSection').style.display = 'block';
+            loadTasks();
+        }
+
+        
+        function openTaskModal(taskId = null) {
+            const modal = document.getElementById('taskModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('taskForm');
+            
+            editingTaskId = taskId;
+            
+            if (taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                modalTitle.textContent = 'Edit Task';
+                document.getElementById('taskTitle').value = task.title;
+                document.getElementById('taskDescription').value = task.description;
+                document.getElementById('taskStatus').value = task.status;
+                document.getElementById('taskPriority').value = task.priority;
+            } else {
+                modalTitle.textContent = 'Add New Task';
+                form.reset();
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').style.display = 'none';
+            document.getElementById('taskForm').reset();
+            editingTaskId = null;
+        }
+
+        
+        function saveTask(taskData) {
+            if (editingTaskId) {
+        
+                const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
+                tasks[taskIndex] = { ...tasks[taskIndex], ...taskData };
+            } else {
+        
+                const newTask = {
+                    id: taskIdCounter++,
+                    ...taskData,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                tasks.push(newTask);
+            }
+            
+            renderTasks();
+            closeTaskModal();
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                renderTasks();
+            }
+        }
+
+        function loadTasks() {
+        
+            if (tasks.length === 0) {
+                tasks = [
+                    {
+                        id: taskIdCounter++,
+                        title: 'Welcome to PostIts!',
+                        description: 'This is your first task. You can edit, delete, or drag it to different columns.',
+                        status: 'todo',
+                        priority: 'high',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: taskIdCounter++,
+                        title: 'Learn Kanban Workflow',
+                        description: 'Understand how to move tasks through different stages of completion.',
+                        status: 'in-progress',
+                        priority: 'medium',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }
+                ];
+            }
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const todoList = document.getElementById('todoList');
+            const inProgressList = document.getElementById('inProgressList');
+            const doneList = document.getElementById('doneList');
+
+        
+            todoList.innerHTML = '';
+            inProgressList.innerHTML = '';
+            doneList.innerHTML = '';
+
+        
+            const todoTasks = tasks.filter(t => t.status === 'todo');
+            const inProgressTasks = tasks.filter(t => t.status === 'in-progress');
+            const doneTasks = tasks.filter(t => t.status === 'done');
+
+            renderTaskList(todoTasks, todoList, 'todo');
+            renderTaskList(inProgressTasks, inProgressList, 'in-progress');
+            renderTaskList(doneTasks, doneList, 'done');
+        }
+
+        function renderTaskList(taskList, container, status) {
+            if (taskList.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.textContent = getEmptyStateMessage(status);
+                container.appendChild(emptyState);
+                return;
+            }
+
+            taskList.forEach(task => {
+                const taskCard = createTaskCard(task);
+                container.appendChild(taskCard);
+            });
+        }
+
+        function getEmptyStateMessage(status) {
+            switch (status) {
+                case 'todo':
+                    return 'No tasks yet. Add your first task!';
+                case 'in-progress':
+                    return 'Move tasks here when you start working on them';
+                case 'done':
+                    return 'Completed tasks will appear here';
+                default:
+                    return 'No tasks here';
+            }
+        }
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = `task-card ${task.status}`;
+            card.draggable = true;
+            card.dataset.taskId = task.id;
+            
+            card.innerHTML = `
+                <div class="task-title">${task.title}</div>
+                <div class="task-description">${task.description}</div>
+                <div class="task-meta">
+                    <span class="task-priority priority-${task.priority}">
+                        ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
+                    </span>
+                    <div class="task-actions">
+                        <button class="task-action edit-btn" onclick="openTaskModal(${task.id})">Edit</button>
+                        <button class="task-action delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+                    </div>
+                </div>
+            `;
+
+        
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+
+            return card;
+        }
+
+        
+        let draggedTask = null;
+
+        function handleDragStart(e) {
+            draggedTask = e.target;
+            e.target.style.opacity = '0.5';
+        }
+
+        function handleDragEnd(e) {
+            e.target.style.opacity = '1';
+            draggedTask = null;
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (draggedTask) {
+                const taskId = parseInt(draggedTask.dataset.taskId);
+                const newStatus = getStatusFromContainer(e.currentTarget);
+                
+                updateTaskStatus(taskId, newStatus);
+            }
+        }
+
+        function getStatusFromContainer(container) {
+            if (container.id === 'todoList') return 'todo';
+            if (container.id === 'inProgressList') return 'in-progress';
+            if (container.id === 'doneList') return 'done';
+        }
+
+        function updateTaskStatus(taskId, newStatus) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task && task.status !== newStatus) {
+                task.status = newStatus;
+                task.updatedAt = new Date().toISOString();
+                renderTasks();
+            }
+        }
+
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                status: document.getElementById('taskStatus').value,
+                priority: document.getElementById('taskPriority').value
+            };
+            
+            saveTask(formData);
+        });
+
+        document.querySelectorAll('.task-list').forEach(list => {
+            list.addEventListener('dragleave', function(e) {
+                if (!this.contains(e.relatedTarget)) {
+                    this.classList.remove('drag-over');
+                }
+            });
+        });
+
+
+        document.getElementById('taskModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTaskModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTaskModal();
+            }
+            if (e.key === 'n' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                openTaskModal();
+            }
+        });
+    </script>
+</body>
+</html>
